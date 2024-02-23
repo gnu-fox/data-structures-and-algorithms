@@ -1,46 +1,67 @@
 #include <iostream>
 
-enum class Kind {Forward};
-template<typename T, Kind...> class Node;
-
-
-template<typename T>
-struct Node<T, Kind::Forward> {
-    Node<T, Kind::Forward>* next;    
-    T value;
+struct Node {
+    Node* next;
+    int value;
 };
 
-enum class Sentinel {True, False};
-template<typename T, Kind, Sentinel> class List;
+void clean(Node* root) {
+    Node* current = root;
+    while(current){
+        Node *tmp = current;
+        current = current->next;
+        delete tmp;
+    }    
+}
 
-template<typename T>
-void clean(Node<T, Kind::Forward>* root) {
-    Node<T, Kind::Forward>* current = root;
-    while (current) {
-        Node<T, Kind::Forward>* temporary = current;
+void print(Node* root) {
+    Node* current = root;
+    while(current) {
+        std::cout << current -> value << "-";
         current = current -> next;
-        std::cout << "delete temporary: " << temporary -> value << "\n";
-        delete temporary;
     }
 }
 
-template <typename T>
-class List<T, Kind::Forward, Sentinel::True> {
-    public:
-    using node_type = Node<T, Kind::Forward>;
+void transverse(Node*& root) {
+    Node* pivot = nullptr;
+    Node* prior = nullptr;
+    Node* current = root;
+    while(current) {
+        prior = current;
+        current = current -> next;
+        prior->next = pivot;
+        pivot = prior;
+    }
+    root = pivot;
+}
 
-    List() {sentinel_ = new node_type{nullptr}}
-    ~List() {clean(sentinel_);}
+void insert(Node*& root, Node* node, int index) {
+    Node* current = root;
+    
+    if(index == 0) {
+        node->next = root;
+        root = node;
+    } 
 
-    private:
-    node_type* sentinel_;
-};
+    while(index > 1) {
+        index--;
+        current = current->next;
+    }
 
+    node->next = current->next;
+    current->next = node;
+
+}
 
 int main() {
-    Node<float, Kind::Forward>* node4 = new Node<float, Kind::Forward>{nullptr, 4};
-    Node<float, Kind::Forward>* node3 = new Node<float, Kind::Forward>{node4, 3};
-    Node<float, Kind::Forward>* node2 = new Node<float, Kind::Forward>{node3, 2};
-    Node<float, Kind::Forward>* sentinel = new Node<float, Kind::Forward>{node2};
-    clean(sentinel);   
+    Node* node5 = new Node{nullptr, 5};
+    Node* node4 = new Node{node5, 4};
+    Node* node3 = new Node{node4, 3};
+    Node* node2 = new Node{node3, 2};
+    Node* node1 = new Node{node2, 1};
+    Node* root = new Node{node1,0};
+
+    insert(root, new Node{nullptr,33}, 1);
+    print(root);
+    clean(root);
 }
